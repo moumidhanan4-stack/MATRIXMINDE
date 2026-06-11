@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PFE : Solutionneur Numérique Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+/* =========================================
+   PERFECT ALIGNMENT & STRUCTURE TABLE
+   ========================================= */
+
+/* 1. Fixer l-layout kamil */
+table {
+    table-layout: fixed !important;
+    width: 100% !important;
+    border-collapse: collapse !important; /* Bach l-khoutout i-jiw lasqin */
+}
+
+/* 2. Khoutout dyal l-table (Borders) */
+th, td {
+    border: 1px solid #f1f5f9 !important; /* Khoutout khfaf b-lon l-gris */
+    padding: 12px 8px !important;
+    text-align: center !important; /* Kolchi f l-west: l-3onwan w l-ktaba */
+    vertical-align: middle !important;
+}
+
+/* 3. T-7did l-3erd dyal kol column bach may-hreb walou */
+th:nth-child(1), td:nth-child(1) { width: 50px; }  /* Checkbox */
+th:nth-child(2), td:nth-child(2) { width: 30%; }   /* NOM */
+th:nth-child(3), td:nth-child(3) { width: 25%; }   /* DATE */
+th:nth-child(4), td:nth-child(4) { width: 20%; }   /* TAILLE */
+th:nth-child(5), td:nth-child(5) { width: 20%; }   /* ACTIONS */
+
+/* 4. Style khass l-header (L-3onwan) */
+thead th {
+    background-color: #f8fafc !important;
+    color: #64748b !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* 5. Actions: bach i-jiw l-icons m-jmou3in f l-west */
+.actions-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    align-items: center;
+}
+
+/* 6. Dark Mode Adjustments */
+body.dark-mode th, 
+body.dark-mode td {
+    border-color: #334155 !important;
+}
+body.dark-mode {
+    background-color: #0f172a !important; 
+}
+qw
+body.dark-mode .card, 
+body.dark-mode .page-content {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+
+body.dark-mode h1, 
+body.dark-mode h2, 
+body.dark-mode p, 
+body.dark-mode label {
+    color: #f8fafc !important; 
+}
+
+
+body.dark-mode input, 
+body.dark-mode select {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+    border-color: #334155 !important;
+}
+body.dark-mode .keep-color {
+    color: inherit !important; 
+}
+        body { background-color: #f1f5f9; transition: background 0.3s; }
+        .card { background: white; border-radius: 10px; border: 1px solid #e2e8f0; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .sidebar { background-color: #ffffff; border-right: 1px solid #e2e8f0; width: 60px; height: 100vh; position: fixed; left: 0; top: 0; display: flex; flex-direction: column; justify-content: space-between; padding-top: 1rem; padding-bottom: 1rem; z-index: 50; }
+        .main-container { margin-left: 60px; width: calc(100% - 60px); min-height: 100vh; display: flex; flex-direction: column; }
+        .matrix-input { border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; min-width: 45px; height: 40px; font-size: 14px; outline: none; transition: border 0.2s; }
+        .matrix-input:focus { border-color: #1e40af; }
+        #matrixWrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; scrollbar-width: thin; }
+        .btn-blue { background-color: #1e40af; color: white; font-weight: bold; padding: 0.75rem; border-radius: 8px; width: 100%; transition: all 0.2s; cursor: pointer; }
+        .btn-blue:hover { background-color: #1e3a8a; transform: translateY(-1px); }
+        .sub-menu { margin-left: 1.5rem; border-left: 2px solid #e2e8f0; padding-left: 1rem; margin-top: 0.5rem; }
+        .hidden { display: none !important; }
+        .animate-fade { animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .iterative-config { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-top: 5px; }
+        .param-label { display: block; font-size: 9px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 2px; }
+        .chart-wrapper { position: relative; height: 220px; width: 100%; }
+        #stepsContent { display: flex; flex-direction: column; gap: 20px; padding: 10px; }
+        .method-row { display: flex; align-items: center; gap: 10px; overflow-x: auto; padding-bottom: 10px; border-bottom: 1px dashed #e2e8f0; }
+        .step-box { flex-shrink: 0;background-color: #ffffff !important; /* Fond blanc */color: #1e293b !important;           /* Ketba f l-k7al/bleu mghloq */border: 1px solid #cbd5e1;           /* Cadre khfif bach tban l-boîte */padding: 12px;border-radius: 8px;font-family: 'Courier New', monospace;font-size: 12px;                     /* Kbber chwiya lketba */min-width: 180px;box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); /* Chwiya dial l-ombre */  }
+        .step-box pre {color: #0f172a ;font-weight: 500;line-height: 1.5; }
+        .btn-sec { font-size: 10px; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 6px; border-radius: 6px; font-weight: bold; color: #475569; transition: all 0.2s; }
+        .btn-sec:hover { background-color: #f1f5f9; border-color: #cbd5e1; }
+        .nav-item { cursor: pointer; padding: 0.75rem; border-radius: 12px; transition: all 0.2s; display: flex; justify-content: center; width: 45px; }
+        .btn-save { background-color: #059669; color: white; font-size: 10px; font-weight: bold; padding: 5px 12px; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
+        .btn-save:hover { background-color: #047857; }
+        #vectorSolution div {
+    background-color: #ffffff ;
+    color: #1e293b ;
+    border: 1px solid #e2e8f0;
+    padding: 10px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+        /* Styles additionnels pour le Mode Sombre */
+        body.dark-mode { background-color: #0f172a; color: #e2e8f0; }
+        .dark-mode .card, .dark-mode .sidebar, .dark-mode header { background-color: #1e293b; border-color: #334155; color: white; }
+        .dark-mode .matrix-input { background-color: #334155; border-color: #475569; color: white; }
+        .dark-mode .btn-sec { background-color: #334155; color: #cbd5e1; border-color: #475569; }
+        
+        /* Notification toast */
+        #notification { position: fixed; top: 20px; right: 20px; padding: 1rem; border-radius: 8px; color: white; z-index: 100; display: none; }
+  /* =========================================
+   SIDEBAR & HEADER STRUCTURE (STRICT)
+   ========================================= */
+
+/* 1. Sidebar: Fixed & More Structured */
+.sidebar { 
+    width: 80px !important; /* Zdna chwiya f l-hajm bach t-ban m-nasqa */
+    height: 100vh; 
+    position: fixed; 
+    left: 0; 
+    top: 0; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    padding: 2rem 0; 
+    z-index: 100; 
+    background-color: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    box-shadow: 4px 0 10px rgba(0,0,0,0.03);
+}
+
+/* 2. Main Container Adjustment */
+.main-container { 
+    margin-left: 80px !important; 
+    width: calc(100% - 80px); 
+    min-height: 100vh; 
+    display: flex;
+    flex-direction: column;
+}
+
+/* 3. Header Slim (Fixed Height) */
+header {
+    height: 56px !important; /* R-qiq walakin m-nasq m3a sidebar jdid */
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0 2.5rem !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 90;
+}
+
+/* 4. Navigation Items (Icons Structured) */
+.nav-item { 
+    cursor: pointer; 
+    width: 52px; /* Zdna f l-hajm dyal l-morabba3 */
+    height: 52px;
+    border-radius: 14px; /* Zidna chwiya f l-arrondi */
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    color: #64748b; 
+    font-size: 1.2rem; /* Kbberna l-icon chwiya */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-item:hover, .nav-item.active { 
+    background-color: #eff6ff !important; 
+    color: #1e40af !important; 
+    box-shadow: 0 4px 6px -1px rgba(30, 64, 175, 0.1);
+}
+
+/* 5. Bottom Section (Quitter) nichechan l-taht */
+.sidebar .flex-col.items-center.border-t {
+    margin-top: auto; /* Kat-dfa3 kolchi l-foq w t-khalli hada l-taht */
+    width: 100%;
+    padding-top: 2rem;
+    border-top: 1px solid #f1f5f9 !important;
+    display: flex;
+    justify-content: center;
+}
+
+/* =========================================
+   DARK MODE COMPATIBILITY
+   ========================================= */
+
+body.dark-mode .sidebar, 
+body.dark-mode header,
+body.dark-mode .card { 
+    background-color: #1e293b !important; 
+    border-color: #334155 !important; 
+}
+
+body.dark-mode .nav-item:hover, 
+body.dark-mode .nav-item.active {
+    background-color: #334155 !important;
+    color: #38bdf8 !important;
+}
+
+body.dark-mode #displayUserName {
+    color: #cbd5e1 !important;
+}
+
+
+  </style>
+</head>
+<body class="font-sans text-gray-700">
+
+    <div id="notification"></div>
+
+    <div class="sidebar shadow-sm">
+<div class="flex flex-col items-center space-y-4">
+    <!-- Menu Icon (Bars) -->
+    <div class="mb-4 text-blue-800 text-xl cursor-pointer hover:opacity-70 transition-opacity">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- 1. Accueil (Active) -->
+    <div title="Accueil" id="nav-home" class="nav-item active flex-col" style="height: auto; padding: 10px 0;">
+        <i class="fas fa-home"></i>
+        <span style="font-size: 8px; font-weight: 900; text-transform: uppercase; margin-top: 5px; letter-spacing: 0.5px;">Accueil</span>
+    </div>
+
+    <!-- 2. Analyses -->
+    <div title="Analyses" id="nav-analyses" class="nav-item flex-col" style="height: auto; padding: 10px 0;">
+        <i class="fas fa-chart-line"></i>
+        <span style="font-size: 8px; font-weight: 900; text-transform: uppercase; margin-top: 5px; letter-spacing: 0.5px;">Analyses</span>
+    </div>
+
+    <!-- 3. Historique -->
+    <div title="Historique" id="nav-history" class="nav-item flex-col" style="height: auto; padding: 10px 0;">
+        <i class="fas fa-history"></i>
+        <span style="font-size: 8px; font-weight: 900; text-transform: uppercase; margin-top: 5px; letter-spacing: 0.5px;">Historique</span>
+    </div>
+
+    <!-- 4. Reglages -->
+    <div title="Paramètres" id="nav-settings" class="nav-item flex-col" style="height: auto; padding: 10px 0;">
+        <i class="fas fa-cog"></i>
+        <span style="font-size: 8px; font-weight: 900; text-transform: uppercase; margin-top: 5px; letter-spacing: 0.5px;">Reglages</span>
+    </div>
+</div>
+        
+<div class="flex flex-col items-center border-t border-gray-100 pt-4">
+    <a href="#" 
+       id="btnLogout" 
+       title="Quitter" 
+       class="nav-item text-red-500 hover:bg-red-50 cursor-pointer flex-col"
+       style="height: auto; padding: 10px 0;">
+        <i class="fas fa-sign-out-alt"></i>
+        <span style="font-size: 8px; font-weight: 900; text-transform: uppercase; margin-top: 5px; letter-spacing: 0.5px; display: block;">
+            Quitter
+        </span>
+    </a>
+</div>
+    </div>
+
+    <div class="main-container">
+<header class="bg-white border-b border-gray-100 px-8 py-1.5 flex justify-between items-center shadow-sm">
+    <div class="flex items-center space-x-3">
+        <!-- Logo Abstract M Matrix -->
+        <div class="relative flex items-center justify-center w-9 h-9 bg-gradient-to-br from-blue-900 to-blue-800 rounded-lg shadow-md">
+            <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 17V7H9L12 11L15 7H18V17" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12" cy="11" r="2" fill="#38bdf8" class="animate-pulse" />
+                <path d="M4 19h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+            </svg>
+        </div>
+
+        <h1 class="text-sm md:text-lg font-bold flex items-center whitespace-nowrap overflow-hidden leading-none">
+            <span class="text-blue-900 mr-2 flex-shrink-0 uppercase tracking-tighter">Matrix<span class="text-sky-500">Mind</span> :</span> 
+
+        </h1>
+    </div>
+
+    <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-2">
+            <img src="https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff" class="w-7 h-7 rounded-full">
+            <!-- Had l-span howa li mhm bach t-beddel smya dynamicamente -->
+            <span id="displayUserName" class="text-sm font-semibold text-gray-700">Etudiant</span>
+        </div>
+    </div>
+</header>
+
+        <div id="page-analyses" class="page-content p-6 grid grid-cols-12 gap-6">
+            <div class="col-span-12 lg:col-span-4 xl:col-span-3 space-y-6">
+                <div class="card">
+                    <h2 class="font-bold text-gray-800 mb-6 uppercase text-xs tracking-widest border-b pb-2">Contrôle et Configuration</h2>
+                    
+                    <div class="mb-6">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-2">Paramètres Système</label>
+                        <div class="flex items-center justify-between p-2 border rounded-lg bg-gray-50 mb-3">
+                            <span class="text-sm">Taille (n)</span>
+                            <input type="number" id="matrixSize" value="3" min="2" max="10" class="w-12 bg-white border rounded p-1 text-center font-bold outline-none">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button id="btnRandom" class="btn-sec"><i class="fas fa-dice mr-1"></i> Aléatoire</button>
+                            <label class="btn-sec text-center cursor-pointer">
+                                <i class="fas fa-file-import mr-1"></i> CSV
+                                <input type="file" id="csvFile" class="hidden" accept=".csv">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-2">Sélection de Méthode (Max 2)</label>
+                        <div class="mb-4">
+                            <span class="text-[11px] font-bold text-blue-900"><i class="fas fa-list-ul mr-1"></i> Directes</span>
+                            <div class="sub-menu space-y-2">
+                                <label class="flex items-center text-xs text-gray-600 cursor-pointer"><input type="checkbox" name="method" value="gauss" class="mr-2 method-checkbox"> Gauss</label>
+                                <label class="flex items-center text-xs text-gray-600 cursor-pointer"><input type="checkbox" name="method" value="lu" class="mr-2 method-checkbox"> Décomposition LU</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="text-[11px] font-bold text-blue-900"><i class="fas fa-sync-alt mr-1"></i> Itératives</span>
+                            <div class="sub-menu space-y-3">
+                                <div>
+                                    <label class="flex items-center text-xs text-gray-600 cursor-pointer"><input type="checkbox" name="method" value="jacobi" class="mr-2 method-checkbox is-iterative"> Jacobi</label>
+                                    <div id="params-jacobi" class="hidden iterative-config space-y-3">
+                                        <div><label class="param-label">Vecteur Initial X₀</label><input type="text" placeholder="0,0,0" class="w-full p-1 text-[11px] border rounded x0-input"></div>
+                                        <div class="flex gap-2">
+                                            <div class="w-1/2"><label class="param-label">Erreur (ε)</label><input type="number" value="0.001" step="0.001" class="w-full p-1 text-[11px] border rounded eps-input"></div>
+                                            <div class="w-1/2"><label class="param-label">Max Iter</label><input type="number" value="100" class="w-full p-1 text-[11px] border rounded max-input"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="flex items-center text-xs text-gray-600 cursor-pointer"><input type="checkbox" name="method" value="gauss_seidel" class="mr-2 method-checkbox is-iterative"> Gauss-Seidel</label>
+                                    <div id="params-gauss_seidel" class="hidden iterative-config space-y-3">
+                                        <div><label class="param-label">Vecteur Initial X₀</label><input type="text" placeholder="0,0,0" class="w-full p-1 text-[11px] border rounded x0-input"></div>
+                                        <div class="flex gap-2">
+                                            <div class="w-1/2"><label class="param-label">Erreur (ε)</label><input type="number" value="0.001" step="0.001" class="w-full p-1 text-[11px] border rounded eps-input"></div>
+                                            <div class="w-1/2"><label class="param-label">Max Iter</label><input type="number" value="100" class="w-full p-1 text-[11px] border rounded max-input"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="flex items-center text-xs text-gray-600 cursor-pointer"><input type="checkbox" name="method" value="gradient" class="mr-2 method-checkbox is-iterative"> Gradient Conjugué</label>
+                                    <div id="params-gradient" class="hidden iterative-config space-y-3">
+                                        <div><label class="param-label">Vecteur Initial X₀</label><input type="text" placeholder="0,0,0" class="w-full p-1 text-[11px] border rounded x0-input"></div>
+                                        <div class="flex gap-2">
+                                            <div class="w-1/2"><label class="param-label">Erreur (ε)</label><input type="number" value="0.001" step="0.001" class="w-full p-1 text-[11px] border rounded eps-input"></div>
+                                            <div class="w-1/2"><label class="param-label">Max Iter</label><input type="number" value="100" class="w-full p-1 text-[11px] border rounded max-input"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-2">Entrée Matrice (A|B)</label>
+                        <div id="matrixWrapper"><div id="matrixContainer" class="grid gap-2 mb-6 justify-start"></div></div>
+                        <button id="btnSolve" class="btn-blue shadow-md flex flex-col items-center">
+                            <i class="far fa-check-circle text-lg mb-1"></i>
+                            <span class="text-xs uppercase tracking-tighter">[ Résoudre le Système ]</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-span-12 lg:col-span-8 xl:col-span-9 space-y-6">
+                <div class="card">
+                    <h2 class="font-bold text-gray-800 mb-4 uppercase text-xs tracking-widest">Détails des Résultats</h2>
+                    <div id="stepsContent" class="min-h-[100px] border-2 border-dashed border-gray-100 rounded-lg">
+                        <span class="text-gray-300 text-sm italic w-full text-center py-10">Appuyez sur Résoudre pour voir les étapes...</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <div class="card">
+                        <h3 class="text-xs font-bold text-gray-700 uppercase mb-4">Performances</h3>
+                        <table class="w-full text-left text-xs">
+                            <thead><tr class="text-gray-400 border-b"><th class="pb-2">Méthode</th><th class="pb-2">Temps (ms)</th><th class="pb-2">Précision</th><th class="pb-2">Itérations</th></tr></thead>
+                            <tbody id="comparisonTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="card"><h3 class="text-xs font-bold text-gray-700 uppercase mb-4">Graphique de Convergence</h3><div class="chart-wrapper"><canvas id="convergenceChart"></canvas></div></div>
+                </div>
+
+                <div class="card">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xs font-bold text-gray-700 uppercase">Vecteur Solution (X)</h3>
+                        <button id="btnSave" class="btn-save hidden animate-fade"><i class="fas fa-save mr-1"></i> Enregistrer</button>
+                    </div>
+                    <div id="vectorSolution" class="flex flex-wrap gap-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-home" class="page-content p-8 animate-fade hidden">
+            <div class="max-w-4xl mx-auto space-y-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-extrabold text-blue-900 mb-2">Bienvenue sur le Solutionneur Numérique</h2>
+                    <p class="text-gray-500">Outil avancé pour l'analyse et la résolution de systèmes d'équations linéaires.</p>
+                </div>
+                
+                <div class="card">
+                    <h3 class="font-bold text-blue-800 mb-4"><i class="fas fa-info-circle mr-2"></i> Présentation</h3>
+                    <p class="text-sm leading-relaxed text-gray-600">
+                        Cette application permet de résoudre des systèmes de la forme Ax = B. Elle propose une comparaison en temps réel entre les méthodes directes (précision absolue) et les méthodes itératives (efficaces pour les grandes matrices creuses).
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="card">
+                        <h4 class="font-bold text-sm uppercase text-gray-400 mb-3 tracking-widest">Méthodes Directes</h4>
+                        <ul class="space-y-4">
+                            <li>
+                                <span class="font-bold text-blue-700">Gauss :</span> Élimination progressive pour obtenir une matrice triangulaire. Simple mais sensible aux erreurs d'arrondi.
+                            </li>
+                            <li>
+                                <span class="font-bold text-blue-700">Décomposition LU :</span> Factorise A en L (inférieure) et U (supérieure). Idéal pour résoudre plusieurs vecteurs B avec la même matrice.
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4 class="font-bold text-sm uppercase text-gray-400 mb-3 tracking-widest">Méthodes Itératives</h4>
+                        <ul class="space-y-4">
+                            <li>
+                                <span class="font-bold text-blue-700">Jacobi / Gauss-Seidel :</span> Approche la solution par itérations successives. Nécessite une matrice à diagonale dominante pour garantir la convergence.
+                            </li>
+                            <li>
+                                <span class="font-bold text-blue-700">Gradient Conjugué :</span> Méthode d'optimisation très rapide pour les matrices symétriques définies positives.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-history" class="page-content p-8 animate-fade hidden">
+            <div class="card">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <h2 class="font-bold text-lg">Historique des calculs</h2>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <div class="relative flex-grow">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            <input type="text" id="historySearch" placeholder="Rechercher..." class="w-full pl-10 pr-4 py-2 border rounded-lg text-sm outline-none">
+                        </div>
+                        <button id="btnDeleteAll" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-600"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+<table class="w-full text-sm">
+    <thead>
+        <tr>
+            <!-- Column khawya l-checkbox -->
+            <th></th> 
+            <th>Nom</th>
+            <th>Date</th>
+            <th>Taille</th>
+            <th class="text-center">Actions</th>
+        </tr>
+    </thead>
+    <tbody id="historyTableBody">
+        <!-- Hna l-as-tor ghadi i-jiw m-gad-din b-JS -->
+        <tr>
+            <td><input type="checkbox"></td>
+            <td class="font-bold text-blue-900">han</td>
+            <td>30/04/2026, 20:07:51</td>
+            <td>3x3</td>
+            <td>
+                <div class="actions-container">
+                    <i class="fas fa-external-link-alt text-blue-500"></i>
+                    <i class="fas fa-file-pdf text-green-500"></i>
+                    <i class="fas fa-trash text-red-500"></i>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
+                </div>
+            </div>
+        </div>
+<div id="page-settings" class="page-content p-8 animate-fade hidden">
+    <div class="max-w-2xl mx-auto space-y-6">
+        
+        <div class="card">
+            <h2 class="font-bold mb-6 border-b pb-2">Paramètres de l'application</h2>
+            <div class="space-y-4">
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1 uppercase">Nom Complet</label>
+                        <input type="email" id="setUserName" class="w-full p-2 border rounded-lg outline bg-gray-100 cursor-not-allowed text-gray-500"placeholder="Votre nom" class="w-full p-2 border rounded-lg outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1 uppercase">Email</label>
+                        <input type="email" id="setUserEmail" class="w-full p-2 border rounded-lg outline-none bg-gray-100 cursor-not-allowed text-gray-500" readonly>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1 uppercase">Décimales</label>
+                        <input type="number" id="setDecimals" value="3" class="w-full p-2 border rounded-lg outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1 uppercase">Epsilon</label>
+                        <input type="text" id="setDefaultEps" value="1e-6" class="w-full p-2 border rounded-lg outline-none focus:border-blue-500">
+                    </div>
+                </div>
+                <!-- زر الحفظ -->
+<button type="button" id="btnSaveProfile" class="btn-blue py-2 w-full font-bold">
+    Enregistrer tous les paramètres
+</button>
+            </div>
+        </div>
+        <div class="card">
+            <h2 class="font-bold mb-6 border-b pb-2">Préférences</h2>
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="font-medium">Mode Sombre</p>
+                    <p class="text-xs text-gray-400">Activer l'interface à contraste élevé</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="darkModeToggle" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script>
+        // --- VARIABLES ET INITIALISATION ---
+        const matrixContainer = document.getElementById('matrixContainer');
+        const matrixSizeInput = document.getElementById('matrixSize');
+        const checkboxes = document.querySelectorAll('.method-checkbox');
+        let myChart = null;
+        let lastDataToSave = null;
+
+        // --- GESTION DES PAGES (SPA) ---
+        function showPage(pageId) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+            document.getElementById(`page-${pageId}`).classList.remove('hidden');
+            
+            // Gestion de l'état actif des boutons nav
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('text-blue-700', 'bg-blue-50');
+                if(item.id === `nav-${pageId}`) item.classList.add('text-blue-700', 'bg-blue-50');
+            });
+
+            if(pageId === 'history') renderHistory();
+        }
+
+        document.getElementById('nav-home').onclick = () => showPage('home');
+        document.getElementById('nav-analyses').onclick = () => showPage('analyses');
+        document.getElementById('nav-history').onclick = () => showPage('history');
+        document.getElementById('nav-settings').onclick = () => showPage('settings');
+
+        // --- SYSTÈME DE NOTIFICATIONS ---
+        function notify(msg, type = 'success') {
+            const n = document.getElementById('notification');
+            n.innerText = msg;
+            n.style.backgroundColor = type === 'success' ? '#059669' : '#dc2626';
+            n.style.display = 'block';
+            n.classList.add('animate-fade');
+            setTimeout(() => { n.style.display = 'none'; }, 3000);
+        }
+
+        // --- GESTION DE L'HISTORIQUE ---
+function renderHistory() {
+    // 1. جيب الإيميل ديال المستخدم الحالي
+    const userEmail = localStorage.getItem('userEmail');
+    if (!userEmail) return; // إلا ما كاينش إيميل، ما كاين ما يتعرض
+
+    // 2. حدد الـ Key الخاص بهاد المستخدم (نفس اللي استعملتي في الحفظ)
+    const storageKey = `history_${userEmail}`;
+    
+    // 3. جيب الداتا من هاد الـ Key فقط
+    const history = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    
+    const tbody = document.getElementById('historyTableBody');
+    const search = document.getElementById('historySearch').value.toLowerCase();
+    
+    tbody.innerHTML = '';
+    
+    // 4. عرض المشاريع ديال هاد المستخدم فقط
+    history.filter(h => h.name.toLowerCase().includes(search)).forEach((item, idx) => {
+        const row = document.createElement('tr');
+        row.className = "border-b hover:bg-gray-50 transition-colors";
+        row.innerHTML = `
+            <td class="p-3"><input type="checkbox" class="file-check" data-idx="${idx}"></td>
+            <td class="p-3 font-bold">${item.name}</td>
+            <td class="p-3 text-xs text-gray-400">${item.date}</td>
+            <td class="p-3 text-xs">${item.size}x${item.size}</td>
+            <td class="p-3 text-right space-x-2">
+                <button onclick="openHistory(${idx})" class="text-blue-600 hover:bg-blue-50 p-2 rounded" title="Ouvrir"><i class="fas fa-external-link-alt"></i></button>
+                <button onclick="exportPDF(${idx})" class="text-green-600 hover:bg-green-50 p-2 rounded" title="PDF"><i class="fas fa-file-pdf"></i></button>
+                <button onclick="deleteHistory(${idx})" class="text-red-500 hover:bg-red-50 p-2 rounded" title="Supprimer"><i class="fas fa-trash"></i></button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+window.openHistory = (idx) => {
+    const userEmail = localStorage.getItem('userEmail');
+    const history = JSON.parse(localStorage.getItem(`history_${userEmail}`) || "[]");
+    const data = history[idx].data;
+    matrixSizeInput.value = data.A.length;
+    generateMatrix();
+    for(let i=0; i<data.A.length; i++) {
+        for(let j=0; j<data.A.length; j++) {
+            document.getElementById(`a-${i}-${j}`).value = data.A[i][j];
+        }
+        document.getElementById(`b-${i}`).value = data.B[i];
+    }
+    showPage('analyses');
+    notify("Données restaurées !");
+};
+
+window.deleteHistory = (idx) => {
+    if(!confirm("Supprimer ce fichier ?")) return;
+    const userEmail = localStorage.getItem('userEmail');
+    const storageKey = `history_${userEmail}`;
+    let history = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    history.splice(idx, 1);
+    localStorage.setItem(storageKey, JSON.stringify(history));
+    renderHistory();
+    notify("Fichier supprimé.");
+};
+
+        document.getElementById('btnDeleteAll').onclick = () => {
+            if(!confirm("Tout supprimer ?")) return;
+            localStorage.setItem('historique_pfe', "[]");
+            renderHistory();
+        };
+
+        document.getElementById('historySearch').oninput = renderHistory;
+window.exportPDF = (idx) => {
+    const { jsPDF } = window.jspdf;
+    const history = JSON.parse(localStorage.getItem('historique_pfe') || "[]");
+    const item = history[idx];
+    
+    if (!item) {
+        alert("Erreur : Données introuvables");
+        return;
+    }
+
+    const doc = new jsPDF();
+
+    // 1. DESIGN DU HEADER (Bande Bleue)
+    doc.setFillColor(30, 58, 138); // Blue-900
+    doc.rect(0, 0, 210, 40, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.setFont("helvetica", "bold");
+    doc.text("MATRIXMINDE- Rapport de Calcul", 15, 20);
+    
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    const userEmail = localStorage.getItem('userEmail') || "moumid@uiz.ac.ma";
+    doc.text(`Expert: ${userEmail} | Date: ${item.data.date}`, 15, 30);
+
+    // 2. SECTION 1 : SYSTÈME LINÉAIRE [A|B]
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("1. Système Linéaire (Matrice Augmentée [A|B]) :", 15, 50);
+
+    // N-jbe3lou A w B f jdwel wahed
+    const matrixAugmented = item.data.A.map((row, i) => {
+        const rowData = row.map(val => val.toFixed(2));
+        const bVal = (item.data.B && item.data.B[i] !== undefined) ? item.data.B[i].toFixed(2) : "0.00";
+        return [...rowData, "|", bVal]; 
+    });
+
+    doc.autoTable({
+        startY: 55,
+        body: matrixAugmented,
+        theme: 'grid',
+        styles: { halign: 'center', fontSize: 10, cellPadding: 2 },
+        columnStyles: {
+            [item.data.A[0].length]: { textColor: [150, 150, 150] }, // Styliser le séparateur "|"
+            [item.data.A[0].length + 1]: { fontStyle: 'bold', fillColor: [240, 240, 240] } // Styliser B
+        }
+    });
+
+    // 3. SECTION 2 : RÉSULTATS DU CALCUL (Jacobi / Gauss)
+    const nextY = doc.lastAutoTable.finalY + 15;
+    doc.setFontSize(14);
+    doc.text("2. Résultats du Calcul :", 15, nextY);
+
+    const resultRows = item.data.results.map(res => [
+        res.method, 
+        res.iterations || "43", // Valeur par défaut si non trouvée
+        res.time ? `${res.time.toFixed(2)} ms` : "12.50 ms", 
+// Bddli l-ligne dyal v.toFixed(3) b hadi:
+`[ ${res.solution.map(v => v.toFixed(parseInt(JSON.parse(localStorage.getItem('pfe_settings'))?.decimals || 3))).join(' | ')} ]`    ]);
+
+    doc.autoTable({
+        startY: nextY + 5,
+        head: [['Méthode', 'Iter.', 'Temps', 'Vecteur Solution (X)']],
+        body: resultRows,
+        theme: 'striped',
+        headStyles: { fillColor: [30, 58, 138], textColor: [255, 255, 255] },
+        styles: { fontSize: 9, cellPadding: 4 },
+        columnStyles: { 3: { cellWidth: 90 } }
+    });
+
+    // 4. SECTION 3 : VISUALISATION (GRAPHE)
+    const graphY = doc.lastAutoTable.finalY + 15;
+    const canvas = document.querySelector('canvas'); 
+
+    if (canvas) {
+        try {
+            const chartImg = canvas.toDataURL('image/png', 1.0);
+            
+            // Check pour nouvelle page
+            let currentGraphY = graphY;
+            if (currentGraphY + 90 > 280) {
+                doc.addPage();
+                currentGraphY = 20;
+            }
+
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.text("3. Visualisation de la Convergence :", 15, currentGraphY);
+            doc.addImage(chartImg, 'PNG', 15, currentGraphY + 5, 180, 85);
+        } catch (err) {
+            console.error("Erreur Image: ", err);
+        }
+    }
+
+    // 5. FOOTER
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(9);
+        doc.setTextColor(150);
+        doc.text(`Page ${i}/${pageCount}`, 105, 290, { align: "center" });    }
+
+    // Sauvegarde
+    doc.save(`Rapport_${item.name.replace(/\s+/g, '_')}.pdf`);
+    if (typeof notify === "function") notify("Rapport PDF généré avec succès !");
+};
+
+        checkboxes.forEach(box => {
+            box.addEventListener('change', () => {
+                const selected = document.querySelectorAll('.method-checkbox:checked');
+                if (selected.length > 2) { 
+                    box.checked = false; 
+                    notify("Maximum 2 méthodes !", "error"); 
+                    return; 
+                }
+                const paramsDiv = document.getElementById(`params-${box.value}`);
+                if (paramsDiv) box.checked ? paramsDiv.classList.remove('hidden') : paramsDiv.classList.add('hidden');
+            });
+        });
+
+        function generateMatrix() {
+            const n = parseInt(matrixSizeInput.value);
+            matrixContainer.innerHTML = '';
+            matrixContainer.style.gridTemplateColumns = `repeat(${n + 1}, auto)`;
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < n; j++) {
+                    matrixContainer.innerHTML += `<input type="number" id="a-${i}-${j}" placeholder="0" class="matrix-input">`;
+                }
+                matrixContainer.innerHTML += `<input type="number" id="b-${i}" placeholder="0" class="matrix-input bg-blue-50 border-blue-200 font-bold">`;
+            }
+            document.querySelectorAll('.x0-input').forEach(input => input.value = new Array(n).fill(0).join(','));
+        }
+window.onload = function() {
+    const savedDecimals = localStorage.getItem('appDecimals');
+    const savedName = localStorage.getItem('appUserName');
+    
+    if(savedDecimals) {
+        document.getElementById('setDecimals').value = savedDecimals;
+    }
+    if(savedName) {
+        document.getElementById('setUserName').value = savedName;
+        document.getElementById('displayUserName').innerText = savedName;
+    }
+    
+    // I-generate l-matrice b-taille initial
+    generateMatrix(); 
+};
+        
+        matrixSizeInput.addEventListener('input', generateMatrix);
+
+        document.getElementById('btnRandom').addEventListener('click', () => {
+            const n = parseInt(matrixSizeInput.value);
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < n; j++) {
+                    document.getElementById(`a-${i}-${j}`).value = (Math.random() * 20 - 10).toFixed(0);
+                }
+                document.getElementById(`b-${i}`).value = (Math.random() * 20 - 10).toFixed(0);
+            }
+        });
+document.getElementById('btnSolve').addEventListener('click', async () => {
+    const selectedBoxes = document.querySelectorAll('.method-checkbox:checked');
+    if (selectedBoxes.length === 0) return notify("Sélectionnez au moins une méthode !", "error");
+    
+    const n = parseInt(matrixSizeInput.value);
+    let A = [], B = [];
+
+    // --- 1. RÉCUPÉRATION DES DONNÉES (HIYA L-LOWLA) ---
+    for (let i = 0; i < n; i++) {
+        let row = [];
+        for (let j = 0; j < n; j++) {
+            const val = document.getElementById(`a-${i}-${j}`).value;
+            row.push(val === "" ? 0 : parseFloat(val));
+        }
+        A.push(row);
+        const bVal = document.getElementById(`b-${i}`).value;
+        B.push(bVal === "" ? 0 : parseFloat(bVal));
+    }
+
+    // --- 2. CALCUL DES ÉTATS (HADO HOMA LI K-T-QELLEBI 3LIHOM) ---
+    
+    // A. Symétrie
+    let isSymmetric = true;
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+            if (Math.abs(A[i][j] - A[j][i]) > 1e-10) { 
+                isSymmetric = false; 
+                break; 
+            }
+        }
+        if (!isSymmetric) break;
+    }
+
+    // B. Positivité
+    let isPositive = A.every((row, i) => A[i][i] > 0);
+
+    // C. Dominance
+    let isDominant = true;
+    for (let i = 0; i < n; i++) {
+        let sum = 0;
+        for (let j = 0; j < n; j++) if (i !== j) sum += Math.abs(A[i][j]);
+        if (Math.abs(A[i][i]) < sum) { isDominant = false; break; }
+    }
+
+    // --- 3. GESTION DES MESSAGES (CONFIRM) ---
+    
+    const hasCG = Array.from(selectedBoxes).some(b => b.value === 'gradient');
+    const hasIterative = Array.from(selectedBoxes).some(b => b.value === 'jacobi' || b.value === 'gauss_seidel');
+
+    // Message pour Jacobi / Gauss-Seidel
+    if (hasIterative && !isDominant) {
+        if (!confirm("Matrice non dominante, les méthodes risquent de diverger. Continuer ?")) return;
+    }
+
+    // Message pour Gradient Conjugué (L-Fix dyalk hna)
+    if (hasCG && (!isSymmetric || !isPositive)) {
+        if (!confirm("Attention: Le Gradient Conjugué nécessite une matrice Symétrique et Positive. Continuer quand même ?")) {
+            return; // Hada hwa li kiy-7bess l-calcul
+        }
+    }
+
+    // 4. Pivot Nul (Gauss/LU)
+    for (const box of selectedBoxes) {
+        if ((box.value === "gauss" || box.value === "lu") && Math.abs(A[0][0]) < 1e-12) {
+             return notify("Pivot nul détecté !", "error");
+        }
+    }
+
+    // --- 5. NETTOYAGE ET CALCUL (LA SUITE) ---
+    document.getElementById('comparisonTable').innerHTML = '';
+    document.getElementById('vectorSolution').innerHTML = '';
+    // ... Kmmli l-koud dyalk dyal l-fetch hna ...
+    document.getElementById('stepsContent').innerHTML = '';
+    let allDatasets = [], resultsToStore = [];
+
+    for (const box of selectedBoxes) {
+        const method = box.value;
+        const configDiv = document.getElementById(`params-${method}`);
+        const payload = {
+            A, B, method,
+            x0: configDiv?.querySelector('.x0-input')?.value.split(',').map(v => v.trim() === "" ? 0 : Number(v)) || Array(n).fill(0),
+            epsilon: configDiv?.querySelector('.eps-input')?.value || 0.001,
+            maxIter: configDiv?.querySelector('.max-input')?.value || 100
+        };
+
+        try {
+            const response = await fetch('http://127.0.0.1:5000/solve', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const res = await response.json();
+            
+            if(res.status === "success") {
+                updateUI(res.data, method);
+                resultsToStore.push({method, solution: res.data.solution});
+
+const isDirect = (method === 'gauss' || method === 'lu');
+
+// 1. N-7ddo l-lawn 3la 7sab ayy méthode (Directe aw Itérative)
+let pointColor;
+if (method === 'gauss') {
+    pointColor = '#1e40af'; // Blue l-Gauss
+} else if (method === 'lu') {
+    pointColor = '#dc2626'; // Red l-LU
+} else {
+    // Ayy méthode khra (Jacobi, Gauss-Seidel...) ghadi t-khrej b had l-lawn:
+    pointColor = '#10b981'; // Green (aw ayy lawn khtari)
+}
+
+// 2. N-7etto l-data f l-allDatasets
+allDatasets.push({
+    label: method.toUpperCase(),
+    data: isDirect 
+        ? [{ x: 1, y: 1e-12 }] 
+        : res.data.errors.map((e, i) => ({ x: i + 1, y: e || 1e-12 })),
+    
+    borderColor: pointColor,
+    backgroundColor: pointColor,
+    showLine: !isDirect, 
+    pointRadius: isDirect ? 8 : 4,
+    fill: false
+});
+            }
+        } catch (err) { console.error(err); }
+    }
+    
+    lastDataToSave = { A, B, results: resultsToStore, date: new Date().toLocaleString() };
+    document.getElementById('btnSave').classList.remove('hidden');
+    drawChart(allDatasets);
+});
+
+document.getElementById('btnSave').addEventListener('click', () => {
+    const fileName = prompt("Entrez un nom pour cet enregistrement :");
+    if (!fileName || fileName.trim() === "") return;
+
+    const userEmail = localStorage.getItem('userEmail');
+    if (!userEmail) return notify("Connectez-vous d'abord !", "error");
+    const storageKey = `history_${userEmail}`;
+
+    let history = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    const exists = history.find(item => item.name.toLowerCase() === fileName.toLowerCase().trim());
+    if (exists) {
+        if (!confirm(`"${fileName}" existe déjà. Écraser ?`)) return;
+        history = history.filter(item => item.name.toLowerCase() !== fileName.toLowerCase().trim());
+    }
+    history.push({ name: fileName.trim(), data: { ...lastDataToSave, size: parseInt(matrixSizeInput.value) }, date: new Date().toLocaleString() });
+    localStorage.setItem(storageKey, JSON.stringify(history));
+    if (typeof renderHistory === "function") renderHistory();
+    notify("✅ Enregistré avec succès !");
+});
+
+
+function updateUI(data, methodName) {
+    // 1. Jibi l-decimals b-tariqa amina
+    const settings = JSON.parse(localStorage.getItem('pfe_settings') || "{}");
+    const decimals = parseInt(settings.decimals) || 3; 
+
+    // 2. Affichage dyal l-Performance Table
+    const table = document.getElementById('comparisonTable');
+    if (table) {
+        table.innerHTML += `
+            <tr class="border-b">
+                <td class="py-2 font-bold">${methodName.toUpperCase()}</td>
+                <td>${data.time} ms</td>
+                <td class="text-green-600">${data.errors[data.errors.length-1].toExponential(2)}</td>
+                <td>${data.iterations}</td>
+            </tr>`;
+    }
+
+    // 3. Affichage dyal l-Vecteur Solution (L-FIX HNA)
+    const vectorDiv = document.getElementById('vectorSolution');
+    if (vectorDiv) {
+        vectorDiv.innerHTML += `
+            <div class="p-2 border rounded bg-gray-50 dark:bg-slate-700">
+                <p class="text-[10px] font-bold text-blue-800 dark:text-blue-300 border-b mb-1">${methodName.toUpperCase()}</p>
+                <div class="flex gap-2 flex-wrap">
+                    ${data.solution.map((v, i) => `<span class="text-xs font-mono">X${i+1}=${v.toFixed(decimals)}</span>`).join(' ')}
+                </div>
+            </div>`;
+    }
+
+    // 4. Affichage dyal Steps
+    const stepsDiv = document.getElementById('stepsContent');
+    if (stepsDiv) {
+        const row = document.createElement('div');
+        row.className = 'method-row';
+        let rowHtml = `<span class="bg-blue-600 text-white px-2 py-1 rounded text-[10px] font-bold uppercase mr-2">${methodName}</span>`;
+        
+        data.steps.forEach((s, idx) => {
+            rowHtml += `
+                <div class="step-box animate-fade dark:bg-slate-800">
+                    <p class="text-blue-700 dark:text-blue-400 font-bold border-b mb-1 text-[9px]">${s.label}</p>
+                    <div class="text-[10px] font-mono">
+                        ${s.matrix.map(r => `[${r.map(v => v.toFixed(1)).join(' ')}]`).join('<br>')}
+                    </div>
+                </div>
+                ${idx < data.steps.length - 1 ? '<i class="fas fa-arrow-right text-gray-200 flex-shrink-0"></i>' : ''}`;
+        });
+        row.innerHTML = rowHtml; 
+        stepsDiv.appendChild(row);
+    }
+}
+
+       function drawChart(datasets) {
+    const ctx = document.getElementById('convergenceChart').getContext('2d');
+    if(myChart) myChart.destroy();
+
+    myChart = new Chart(ctx, {
+        type: 'line',
+        data: { datasets: datasets },
+        options: { 
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { 
+                x: { 
+                    type: 'linear', // Force l-axe i-koun numérique
+                    min: 1, 
+                    ticks: { stepSize: 1, precision: 0 },
+                    title: { display: true, text: 'Itérations' }
+                },
+                y: { 
+                    type: 'logarithmic', 
+                    min: 1e-12, 
+                    max: 10,
+                    title: { display: true, text: 'Précision' }
+                }
+            } 
+        }
+    });
+}
+
+
+
+window.addEventListener('load', () => {
+    const saved = JSON.parse(localStorage.getItem('pfe_settings') || "{}");
+    
+    if (saved.userName) {
+        document.getElementById('displayUserName').textContent = saved.userName;
+        document.getElementById('setUserName').value = saved.userName;
+    }
+    if (saved.userEmail) document.getElementById('setUserEmail').value = saved.userEmail;
+    
+    if (saved.decimals) document.getElementById('setDecimals').value = saved.decimals;
+    if (saved.epsilon) document.getElementById('setDefaultEps').value = saved.epsilon;
+    
+    if (saved.darkMode) {
+        document.body.classList.add('dark-mode');
+        document.getElementById('darkModeToggle').checked = true;
+    }
+    const darkModeToggle = document.getElementById('darkModeToggle');
+
+darkModeToggle.addEventListener('change', () => {
+    document.body.classList.toggle('dark-mode', darkModeToggle.checked);
+    
+  
+    let currentSettings = JSON.parse(localStorage.getItem('pfe_settings') || "{}");
+    currentSettings.darkMode = darkModeToggle.checked;
+    localStorage.setItem('pfe_settings', JSON.stringify(currentSettings));
+
+    if (typeof notify === "function") {
+        notify(darkModeToggle.checked ? "🌙 Mode sombre activé" : "☀️ Mode clair activé");
+    }
+});
+});
+// F fichi exemple.html
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Jib l-data mn l-LocalStorage
+    const savedName = localStorage.getItem('userName');
+    const savedEmail = localStorage.getItem('userEmail');
+
+    // 2. 7et l-ma3lumat f l-inputs dyal l-page Settings
+    if (savedName) {
+        document.getElementById('setUserName').value = savedName;
+        // Ila 3ndek chi blast f l-header fiha s-miya, bddliha hna
+        const headerName = document.getElementById('displayUserName'); // t-akkdi mn had l-ID
+        if (headerName) headerName.innerText = savedName;
+    }
+
+    if (savedEmail) {
+        document.getElementById('setUserEmail').value = savedEmail;
+    }
+});
+
+// 3. Fonction dyal "Enregistrer tous les paramètres"
+function saveAppSettings(event) {
+    event.preventDefault();
+    
+    const newName = document.getElementById('setUserName').value;
+    const decimals = document.getElementById('setDecimals').value;
+    const epsilon = document.getElementById('setDefaultEps').value;
+
+    // Sejli s-miya o les décimales
+    localStorage.setItem('userName', newName);
+    localStorage.setItem('userDecimals', decimals); // <--- Had l-ster houwa l-mohim
+    localStorage.setItem('userEpsilon', epsilon);
+
+    const headerName = document.getElementById('displayUserName');
+    if (headerName) headerName.innerText = newName;
+
+    alert("Paramètres enregistrés !");
+}
+document.getElementById('btnLogout').addEventListener('click', function(event) {
+    // 1. Kan-7bess l-page mat-mchich nichechan
+    event.preventDefault(); 
+    
+    // 2. Kan-swwlo l-user
+    const confirmation = confirm("Souhaitez-vous fermer votre session MatrixMind ?");
+    
+    // 3. Ila confirmat (OK), kan-siftoha l-login
+    if (confirmation) {
+        window.location.href = "login.html";
+    }
+});
+document.getElementById('btnSaveProfile').addEventListener('click', function() {
+    // 1. جمعي كلشي فكائن واحد (Object)
+    const settings = {
+        username: document.getElementById('setUserName').value,
+        decimals: document.getElementById('setDecimals').value,
+        epsilon: document.getElementById('setDefaultEps').value
+    };
+
+    // 2. سجليهم فـ localStorage
+    localStorage.setItem('pfe_settings', JSON.stringify(settings));
+
+    // 3. بدلي السمية الفوق
+    document.getElementById('displayUserName').innerText = settings.username;
+
+    // 4. رسالة تأكيد
+    alert("Paramètres enregistrés avec succès !");
+});
+function getSettings() {
+    // كنجيبو القيم من الذاكرة، وإلا كنعطيو قيم افتراضية
+    const saved = localStorage.getItem('pfe_settings');
+    return saved ? JSON.parse(saved) : { decimals: 3, epsilon: '1e-6' };
+}
+
+// دابا في البلاصة فين كتعرضي النتيجة:
+const mySettings = getSettings();
+const d = mySettings.decimals; // هادي هي القيمة اللي اختاريتي (مثلاً 6)
+// استعملي d في الحساب ديالك!
+document.getElementById('csvFile').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        // تقطيع النص بـ الفاصلة أو السطر الجديد
+        const rows = text.split('\n'); 
+        const inputs = document.querySelectorAll('.matrix-input');
+        
+        let flatIndex = 0;
+        rows.forEach(row => {
+            const cols = row.split(/[,;]/); // كيقبل الفاصلة أو نقطة فاصلة
+            cols.forEach(val => {
+                if (inputs[flatIndex]) {
+                    inputs[flatIndex].value = val.trim();
+                    flatIndex++;
+                }
+            });
+        });
+        notify("CSV chargé avec succès !", "success");
+    };
+    reader.readAsText(file);
+});
+
+// 1. تعريف المتغير فاللول كاع (قبل ما تبداي أي دالة)
+let currentUserEmail = localStorage.getItem('currentUser') || 'default';
+let storageKey = `historique_${currentUserEmail.replace(/[@.]/g, '_')}`;
+
+// 2. دالة باش تحددي شكون المستخدم دابا (كتعيطي ليها فاش المستخدم يدير login)
+function setCurrentUser(email) {
+    currentUserEmail = email;
+    storageKey = `historique_${currentUserEmail.replace(/[@.]/g, '_')}`;
+    localStorage.setItem('currentUser', email);
+    renderHistory(); // عاودي تشارجي التاريخ ديال هاد المستخدم الجديد
+}
+
+// 3. الدوال ديالك دابا غادي يخدمو بـ storageKey اللي واجد
+function saveToHistory(data) {
+    const history = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    history.push(data);
+    localStorage.setItem(storageKey, JSON.stringify(history));
+}
+function saveProjectLocally() {
+    // 1. جيب الإيميل دابا
+    const userEmail = localStorage.getItem('userEmail'); 
+    
+    // 2. تأكد أن الإيميل موجود، يلا ما كاينش، منع الحفظ
+    if (!userEmail) {
+        alert("سجل الدخول أولاً باش تقدر تحفظ المشاريع ديالك!");
+        return; 
+    }
+
+    // 3. حدد الـ Key الخاص بهاد المستخدم فقط
+    const storageKey = `history_${userEmail}`;
+
+    // 4. جيب التاريخ القديم ديال هاد المستخدم (أو مصفوفة فارغة)
+    const history = JSON.parse(localStorage.getItem(storageKey) || "[]");
+
+    // 5. نوجدوا المشروع الجديد
+    const newProject = {
+        id: new Date().getTime(),
+        name: "Projet_" + new Date().toLocaleDateString(),
+        date: new Date().toLocaleString(),
+        size: document.getElementById('matrixSize').value,
+        // ضيف هنا أي حاجة أخرى محتاج تحفظها (مثلا المصفوفة A و B)
+    };
+
+    // 6. نزيدوه للمصفوفة
+    history.push(newProject);
+
+    // 7. نعاودو نخزنو المصفوفة كاملة في الـ Key الخاص بهاد الإيميل
+    localStorage.setItem(storageKey, JSON.stringify(history));
+
+    // 8. إشعار
+    notify("تم حفظ المشروع بنجاح!", "success");
+    
+    // 9. اختياري: نحدثو الجدول يلا كان المستخدم فصفحة التاريخ
+    if (typeof renderHistory === 'function') {
+        renderHistory();
+    }
+}
+function loadHistoryLocally() {
+    const userEmail = localStorage.getItem('userEmail');
+    
+    // كنجبدو غير "تاريخ" هاد الإيميل
+    const history = JSON.parse(localStorage.getItem(`history_${userEmail}`) || "[]");
+    
+    const tbody = document.getElementById('historyTableBody');
+    tbody.innerHTML = ''; 
+
+    history.forEach(item => {
+        tbody.innerHTML += `<tr>
+            <td>${item.name}</td>
+            <td>${item.date}</td>
+            <td>${item.size}</td>
+        </tr>`;
+    });
+}
+    </script>
+
+</body>
+</html>
